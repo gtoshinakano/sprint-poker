@@ -6,6 +6,7 @@ import {
   signInAnonymously,
   updateProfile,
   signOut,
+  User,
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { FirebaseError } from "firebase/app";
@@ -25,6 +26,7 @@ export interface AuthStateContext {
   ) => Promise<void>;
   handleAnonymousLogin: (displayName: string) => Promise<void>;
   handleLogOut: () => Promise<void>;
+  user?: User | null;
 }
 
 const initialState: Pick<
@@ -45,15 +47,19 @@ interface IElement {
 export const AuthProvider = ({ children }: IElement) => {
   const [session, setSession] = useState(initialState);
   const [message, setMessage] = useState("");
+  const [userObj, setUserObj] = useState<User | null>();
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      if (!user)
+      if (!user) {
+        setUserObj(null);
         return setSession({
           status: "unauthenticated",
           userId: null,
           displayName: null,
         });
+      }
+      setUserObj(user);
       setSession({
         status: "authenticated",
         userId: user.uid,
@@ -101,8 +107,8 @@ export const AuthProvider = ({ children }: IElement) => {
   const handleAnonymousLogin = async (displayName: string) => {
     checking();
     const { user } = await signInAnonymously(auth);
-    validateAuth(user.uid, user.displayName);
-    updateProfile(user, { displayName });
+    await updateProfile(user, { displayName });
+    validateAuth(user.uid, displayName);
   };
 
   const handleRegisterWithCredentials = async (
@@ -132,6 +138,7 @@ export const AuthProvider = ({ children }: IElement) => {
         handleRegisterWithCredentials,
         handleAnonymousLogin,
         handleLogOut,
+        user: userObj,
       }}
     >
       {children}
