@@ -3,6 +3,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInAnonymously,
+  updateProfile,
   signOut,
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
@@ -11,6 +13,7 @@ import { FirebaseError } from "firebase/app";
 export interface AuthStateContext {
   userId: string | null;
   status: "checking" | "authenticated" | "unauthenticated";
+  displayName: string | null;
   message: string | null;
   handleLoginWithCredentials: (
     email: string,
@@ -20,11 +23,16 @@ export interface AuthStateContext {
     email: string,
     password: string
   ) => Promise<void>;
+  handleAnonymousLogin: (displayName: string) => Promise<void>;
   handleLogOut: () => Promise<void>;
 }
 
-const initialState: Pick<AuthStateContext, "status" | "userId"> = {
+const initialState: Pick<
+  AuthStateContext,
+  "status" | "userId" | "displayName"
+> = {
   userId: null,
+  displayName: null,
   status: "checking",
 };
 
@@ -40,17 +48,34 @@ export const AuthProvider = ({ children }: IElement) => {
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
-      if (!user) return setSession({ status: "unauthenticated", userId: null });
-      setSession({ status: "authenticated", userId: user.uid });
+      if (!user)
+        return setSession({
+          status: "unauthenticated",
+          userId: null,
+          displayName: null,
+        });
+      setSession({
+        status: "authenticated",
+        userId: user.uid,
+        displayName: user.displayName,
+      });
     });
   }, []);
 
   const checking = () =>
     setSession((prev) => ({ ...prev, status: "checking" }));
 
-  const validateAuth = (userId: string | undefined) => {
-    if (userId) return setSession({ userId, status: "authenticated" });
-    return setSession({ userId: null, status: "unauthenticated" });
+  const validateAuth = (
+    userId: string | undefined,
+    displayName: string | null
+  ) => {
+    if (userId)
+      return setSession({ userId, displayName, status: "authenticated" });
+    return setSession({
+      userId: null,
+      displayName: null,
+      status: "unauthenticated",
+    });
   };
 
   const handleLoginWithCredentials = async (
@@ -59,14 +84,25 @@ export const AuthProvider = ({ children }: IElement) => {
   ) => {
     checking();
     try {
-      const user = await signInWithEmailAndPassword(auth, email, password);
-      validateAuth(user.user.uid);
+      const { user } = await signInWithEmailAndPassword(auth, email, password);
+      validateAuth(user.uid, user.displayName);
     } catch (e) {
       if (e instanceof FirebaseError) {
         setMessage(e.code);
       }
-      setSession({ userId: null, status: "unauthenticated" });
+      setSession({
+        userId: null,
+        displayName: null,
+        status: "unauthenticated",
+      });
     }
+  };
+
+  const handleAnonymousLogin = async (displayName: string) => {
+    checking();
+    const { user } = await signInAnonymously(auth);
+    validateAuth(user.uid, user.displayName);
+    updateProfile(user, { displayName });
   };
 
   const handleRegisterWithCredentials = async (
@@ -74,13 +110,17 @@ export const AuthProvider = ({ children }: IElement) => {
     password: string
   ) => {
     checking();
-    const user = await createUserWithEmailAndPassword(auth, email, password);
-    validateAuth(user.user.uid);
+    const { user } = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    validateAuth(user.uid, user.displayName);
   };
 
   const handleLogOut = async () => {
     await signOut(auth);
-    setSession({ userId: null, status: "unauthenticated" });
+    setSession({ userId: null, displayName: null, status: "unauthenticated" });
   };
 
   return (
@@ -90,6 +130,7 @@ export const AuthProvider = ({ children }: IElement) => {
         message,
         handleLoginWithCredentials,
         handleRegisterWithCredentials,
+        handleAnonymousLogin,
         handleLogOut,
       }}
     >
