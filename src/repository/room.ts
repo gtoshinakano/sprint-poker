@@ -11,7 +11,10 @@ export const getAllRooms = async (): Promise<Record<string, RoomData>> => {
   return data.val();
 };
 
-export const getRoom = (roomId: string) => get(roomRef(roomId));
+export const getRoom = async (roomId: string): Promise<RoomData> => {
+  const data = await get(roomRef(roomId));
+  return data.val();
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createRoom = (roomId: string, data?: any) =>

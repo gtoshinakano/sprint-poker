@@ -5,17 +5,15 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRoom, getAllRooms } from "../repository/room";
+import { getAllRooms } from "../repository/room";
+import { initRoom } from "../service/initRoom";
 
 function Dashboard() {
   const [roomName, setRoomName] = useState("");
   const { user, displayName } = useContext(AuthContext);
   const client = useQueryClient();
   const { mutate } = useMutation({
-    mutationFn: (roomId: string) =>
-      createRoom(encodeURIComponent(roomId.split(" ").join("-")), {
-        roomName: roomId,
-      }),
+    mutationFn: initRoom,
     onSuccess: () => client.invalidateQueries({ queryKey: ["rooms"] }),
   });
 
