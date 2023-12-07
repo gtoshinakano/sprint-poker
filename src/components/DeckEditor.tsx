@@ -37,7 +37,11 @@ const DeckEditor = ({ currentDeck, onConfirm, disabled }: DeckEditorProps) => {
           disabled={disabled}
         >
           {card}
-          <IoCloseCircleSharp className="mx-auto text-xl text-rose-400" />
+          <IoCloseCircleSharp
+            className={`mx-auto text-xl ${
+              disabled ? "text-gray-400" : "text-rose-400"
+            }`}
+          />
         </button>
       ))}
       <FlexibleInput

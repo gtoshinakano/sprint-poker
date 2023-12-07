@@ -56,7 +56,7 @@ const FlexibleInput = ({
         disabled={disabled}
       />
       <button
-        className="py-1.5 px-3 text-white bg-cyan-700 rounded-md disabled:cursor-not-allowed"
+        className="py-1.5 px-3 text-white bg-cyan-700 rounded-md disabled:cursor-not-allowed disabled:bg-gray-400"
         onClick={handleConfirm}
         disabled={!input || disabled}
       >
