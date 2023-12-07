@@ -5,9 +5,10 @@ import { IoCloseCircleSharp } from "react-icons/io5";
 type DeckEditorProps = {
   currentDeck: string[];
   onConfirm: (newDeck: string[]) => void;
+  disabled: boolean;
 };
 
-const DeckEditor = ({ currentDeck, onConfirm }: DeckEditorProps) => {
+const DeckEditor = ({ currentDeck, onConfirm, disabled }: DeckEditorProps) => {
   const [deck, setDeck] = useState(currentDeck);
   const deckSet = new Set<string>(deck);
   const uniqueDeck = Array.from(deckSet);
@@ -31,8 +32,9 @@ const DeckEditor = ({ currentDeck, onConfirm }: DeckEditorProps) => {
       {uniqueDeck.map((card) => (
         <button
           key={card}
-          className="text-3xl my-auto flex gap-1.5 rounded-md py-1.5 px-3 hover:bg-cyan-200 flex-col border-2 border-cyan-200 min-w-[60px] transform duration-75"
+          className="text-3xl my-auto flex gap-1.5 rounded-md py-1.5 px-3 hover:bg-cyan-200 flex-col border-2 text-gray-600 border-cyan-200 min-w-[60px] transform duration-75 disabled:bg-gray-100 disabled:border-gray-200 disabled:cursor-not-allowed"
           onClick={() => onRemove(card)}
+          disabled={disabled}
         >
           {card}
           <IoCloseCircleSharp className="mx-auto text-xl text-rose-400" />
@@ -44,6 +46,7 @@ const DeckEditor = ({ currentDeck, onConfirm }: DeckEditorProps) => {
         maxLength={30}
         okText="Add Card"
         placeholder="Type here"
+        disabled={disabled}
       />
     </div>
   );

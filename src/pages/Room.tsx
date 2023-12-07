@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getRoom } from "../repository/room";
 import RoomHeader from "../components/RoomHeader";
 import { getCurrentRound } from "../repository/round";
+import PlayFooter from "../components/PlayFooter";
 
 const Room = () => {
   const { roomId } = useParams();
@@ -66,7 +67,12 @@ const Room = () => {
               )}
             </div>
             <div></div>
-            <footer></footer>
+            {roundInfo?.state === "playing" && (
+              <PlayFooter
+                deck={roundInfo.deck}
+                onChange={() => console.log("selected")}
+              />
+            )}
           </div>
         </section>
       </Layout>

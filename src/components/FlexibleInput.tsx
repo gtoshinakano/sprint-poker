@@ -7,6 +7,7 @@ type FlexibleInputProps = {
   okText?: string;
   onConfirm: (value: string) => void;
   placeholder?: string;
+  disabled?: boolean;
 };
 
 const FlexibleInput = ({
@@ -16,6 +17,7 @@ const FlexibleInput = ({
   onConfirm,
   maxLength,
   placeholder,
+  disabled,
 }: FlexibleInputProps) => {
   const hiddenElement = useRef<HTMLSpanElement>(null);
   const [width, setWidth] = useState(0);
@@ -45,16 +47,18 @@ const FlexibleInput = ({
         style={{
           width,
         }}
-        className="p-1.5 border border-cyan-700 min-w-[45px] text-2xl rounded-md"
+        className="p-1.5 border border-cyan-700 min-w-[45px] text-2xl rounded-md disabled:cursor-not-allowed"
         title={title}
         maxLength={maxLength}
         placeholder={placeholder}
         value={input}
         onChange={({ target }) => setInput(target.value)}
+        disabled={disabled}
       />
       <button
-        className="py-1.5 px-3 text-white bg-cyan-700 rounded-md"
+        className="py-1.5 px-3 text-white bg-cyan-700 rounded-md disabled:cursor-not-allowed"
         onClick={handleConfirm}
+        disabled={!input || disabled}
       >
         {okText ?? "OK"}
       </button>
