@@ -4,6 +4,7 @@ import { CiEdit } from "react-icons/ci";
 import { Round } from "../repository/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateRound } from "../repository/round";
+import DeckEditor from "./DeckEditor";
 
 type RoomHeaderProps = {
   roundInfo: Round;
@@ -31,28 +32,33 @@ const RoomHeader = ({ roundInfo, roundId, roomId }: RoomHeaderProps) => {
           {state === "init" && !title
             ? "Please wait for the host to prepare the next round.."
             : title}
-          {roundId}
         </h2>
       </div>
     );
 
   return (
-    <div className="flex gap-2 mt-5 w-full">
-      <input
-        type="text"
-        title="vote-title"
-        placeholder="What are we voting now ?"
-        className="text-4xl py-3 px-1 focus:outline-gray-300 rounded-md text-gray-800 grow"
-        value={txtTitle}
-        onChange={({ target }) => setTxtTitle(target.value)}
+    <div className="flex flex-col gap-2 mt-5 w-full">
+      <div className="flex w-full">
+        <input
+          type="text"
+          title="vote-title"
+          placeholder="What are we voting now ?"
+          className="text-4xl py-3 px-1 focus:outline-gray-300 rounded-md text-gray-800 grow"
+          value={txtTitle}
+          onChange={({ target }) => setTxtTitle(target.value)}
+        />
+        <button
+          title="edit"
+          className="text-3xl pt-2 text-gray-900"
+          onClick={() => updateRoundInfo({ title: txtTitle })}
+        >
+          <CiEdit />
+        </button>
+      </div>
+      <DeckEditor
+        currentDeck={roundInfo.deck ?? []}
+        onConfirm={(deck) => updateRoundInfo({ deck })}
       />
-      <button
-        title="edit"
-        className="text-3xl pt-2 text-gray-900"
-        onClick={() => updateRoundInfo({ title: txtTitle })}
-      >
-        <CiEdit />
-      </button>
     </div>
   );
 };

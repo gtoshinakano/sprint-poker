@@ -6,6 +6,6 @@ export type RoomData = {
 export type Round = {
   title: string;
   state: "init" | "playing" | "results" | "finished";
-  deck: string[] | number[];
+  deck: string[];
   createdBy?: string;
 };
