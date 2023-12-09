@@ -50,7 +50,7 @@ const RoomHeader = ({ roundInfo, roundId, roomId }: RoomHeaderProps) => {
   const disabled = ["playing", "results", "finished"].includes(roundInfo.state);
 
   return (
-    <div className="flex flex-col gap-2 mt-5 w-full">
+    <div className="flex flex-col gap-2 mt-5 w-full items-center">
       <div className="flex w-full">
         <input
           type="text"
@@ -80,7 +80,8 @@ const RoomHeader = ({ roundInfo, roundId, roomId }: RoomHeaderProps) => {
         onClick={() => updateRoundInfo({ state: "playing" })}
         disabled={disabled}
       >
-        Start Poker !
+        {state === "init" && "Start Poker !"}{" "}
+        {state === "playing" && "Playing..."}
       </button>
     </div>
   );

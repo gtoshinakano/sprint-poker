@@ -3,5 +3,7 @@ import { db } from "../lib/firebase";
 
 export const connectedRef = ref(getDatabase(), ".info/connected");
 
-export const statusRef = (roomId: string, userId: string) =>
+export const roomStatusRef = (roomId: string) => ref(db, `status/${roomId}`);
+
+export const playerStatusRef = (roomId: string, userId: string) =>
   ref(db, `status/${roomId}/${userId}`);

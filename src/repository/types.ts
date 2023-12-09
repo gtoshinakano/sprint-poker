@@ -9,3 +9,8 @@ export type Round = {
   deck: string[];
   createdBy?: string;
 };
+
+export type PlayerStatus = {
+  displayName?: string;
+  isWatcher: boolean;
+};

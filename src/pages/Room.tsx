@@ -2,7 +2,7 @@ import { Suspense, useContext, useEffect } from "react";
 import { onValue, onDisconnect, set, off, remove } from "firebase/database";
 import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../components/Layout";
-import { connectedRef, statusRef } from "../repository/status";
+import { connectedRef, playerStatusRef } from "../repository/status";
 import { AuthContext } from "../context/AuthContext";
 import Spinner from "../components/Spinner";
 import { useQuery } from "@tanstack/react-query";
@@ -10,10 +10,11 @@ import { getRoom } from "../repository/room";
 import RoomHeader from "../components/RoomHeader";
 import { getCurrentRound } from "../repository/round";
 import PlayFooter from "../components/PlayFooter";
+import PlayerManager from "../components/PlayerManager";
 
 const Room = () => {
   const { roomId } = useParams();
-  const { userId, displayName } = useContext(AuthContext);
+  const { userId, displayName, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const { data: roomData } = useQuery({
@@ -30,13 +31,13 @@ const Room = () => {
 
     onValue(connectedRef, (snapshot) => {
       if (snapshot.val() && userId) {
-        onDisconnect(statusRef(roomId, userId)).remove();
-        set(statusRef(roomId, userId), displayName);
+        onDisconnect(playerStatusRef(roomId, userId)).remove();
+        set(playerStatusRef(roomId, userId), { displayName, isWatcher: false });
       }
     });
     return () => {
       off(connectedRef);
-      remove(statusRef(roomId, userId!));
+      remove(playerStatusRef(roomId, userId!));
     };
   }, [displayName, navigate, roomId, userId]);
 
@@ -48,6 +49,8 @@ const Room = () => {
 
   const roundInfo = currentRound && Object.values(currentRound)[0];
   const roundId = currentRound && Object.keys(currentRound)[0];
+
+  if (!roomId) return <Spinner fullScreen />;
 
   return (
     <Suspense fallback={<Spinner fullScreen />}>
@@ -75,6 +78,11 @@ const Room = () => {
             )}
           </div>
         </section>
+        <PlayerManager
+          readOnly={user?.isAnonymous}
+          userId={userId}
+          roomId={roomId}
+        />
       </Layout>
     </Suspense>
   );

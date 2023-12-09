@@ -36,7 +36,7 @@ const FlexibleInput = ({
   };
 
   return (
-    <div className="relative flex my-auto gap-2">
+    <div className="relative flex mt-auto gap-2">
       <span
         ref={hiddenElement}
         className="fixed invisible px-1.5 whitespace-pre min-w-[45px] text-2xl"
