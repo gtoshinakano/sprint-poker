@@ -11,6 +11,7 @@ export type Round = {
 };
 
 export type PlayerStatus = {
-  displayName?: string;
+  displayName: string;
   isWatcher: boolean;
+  [key: string]: string | boolean;
 };

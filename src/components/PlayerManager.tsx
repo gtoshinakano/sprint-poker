@@ -1,5 +1,5 @@
 import { ImEye } from "react-icons/im";
-import { GiCardAceClubs } from "react-icons/gi";
+import { GiCardAceClubs, GiCardPlay } from "react-icons/gi";
 import { useEffect } from "react";
 import { onValue } from "firebase/database";
 import { roomStatusRef } from "../repository/status";
@@ -10,9 +10,15 @@ type PlayerManagerProps = {
   readOnly?: boolean;
   userId: string | null;
   roomId: string;
+  roundId: string;
 };
 
-const PlayerManager = ({ readOnly, userId, roomId }: PlayerManagerProps) => {
+const PlayerManager = ({
+  readOnly,
+  userId,
+  roomId,
+  roundId,
+}: PlayerManagerProps) => {
   const { setOnlineUsers, onlineUsers } = useRoomPlayers();
   useEffect(() => {
     onValue(roomStatusRef(roomId), (snapshot) => {
@@ -27,18 +33,21 @@ const PlayerManager = ({ readOnly, userId, roomId }: PlayerManagerProps) => {
       <div className="flex bg-rose-100 p-1.5 font-semibold text-gray-700 rounded-md">
         <div className="my-auto p-1.5 grow">Online Players</div>
       </div>
-      {onlineUsers?.map(({ uid, displayName, isWatcher }) => (
+      {onlineUsers?.map(({ uid, displayName, isWatcher, ...player }) => (
         <div key={uid} className="flex px-1 font-light text-gray-700">
-          <div className="my-auto px-2 grow">{displayName}</div>
+          <div className="my-auto px-2 grow flex">
+            {!isWatcher && player[`answer-${roundId}`] && (
+              <GiCardPlay className="mr-3 text-blue-500 my-auto" />
+            )}
+            {displayName}
+          </div>
           <button
             className={`my-auto py-2 px-2 text-xl hover:bg-gray-100 disabled:bg-white rounded-lg transform duration-75
             ${isWatcher ? "text-gray-300" : "text-green-300"}`}
             title={displayName}
             disabled={readOnly && userId !== uid}
-            onClick={
-              !readOnly || userId === uid
-                ? () => togglePlayerWatcherState(roomId, uid, isWatcher)
-                : () => null
+            onClick={() =>
+              togglePlayerWatcherState(roomId, uid, isWatcher, roundId)
             }
           >
             {isWatcher ? <ImEye /> : <GiCardAceClubs />}

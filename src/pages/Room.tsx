@@ -11,6 +11,8 @@ import RoomHeader from "../components/RoomHeader";
 import { getCurrentRound } from "../repository/round";
 import PlayFooter from "../components/PlayFooter";
 import PlayerManager from "../components/PlayerManager";
+import PokerTable from "../components/PokerTable";
+import { playCard } from "../service/roomPlayers";
 
 const Room = () => {
   const { roomId } = useParams();
@@ -42,7 +44,7 @@ const Room = () => {
   }, [displayName, navigate, roomId, userId]);
 
   const { data: currentRound } = useQuery({
-    queryKey: ["round", roomId, "currentRound"],
+    queryKey: ["round", roomId],
     queryFn: () => getCurrentRound(roomId!),
     staleTime: 5000,
   });
@@ -50,13 +52,16 @@ const Room = () => {
   const roundInfo = currentRound && Object.values(currentRound)[0];
   const roundId = currentRound && Object.keys(currentRound)[0];
 
-  if (!roomId) return <Spinner fullScreen />;
+  if (!roomId || !userId || !roundId) return <Spinner fullScreen size="lg" />;
+
+  const selectCard = (card: string | null) =>
+    playCard(roomId, userId, { [`answer-${roundId}`]: card });
 
   return (
     <Suspense fallback={<Spinner fullScreen />}>
       <Layout isAnonymous isProtected>
         <section className="flex w-screen">
-          <div className="m-auto max-w-[80vw] h-[90vh] flex flex-col justify-between">
+          <div className="m-auto h-[96vh] flex flex-col justify-between gap-3">
             <div className="flex flex-col w-full">
               <h3 className="text-xs text-sky-500">
                 Sprint Poker / room / {roomData?.roomName}
@@ -69,11 +74,21 @@ const Room = () => {
                 />
               )}
             </div>
-            <div></div>
+            {roundInfo?.state &&
+              ["playing", "results"].includes(roundInfo?.state) && (
+                <PokerTable
+                  roomId={roomId}
+                  userId={userId}
+                  state={roundInfo?.state}
+                  roundId={roundId}
+                  isHost={!user?.isAnonymous}
+                />
+              )}
             {roundInfo?.state === "playing" && (
               <PlayFooter
                 deck={roundInfo.deck}
-                onChange={() => console.log("selected")}
+                onChange={selectCard}
+                userId={userId}
               />
             )}
           </div>
@@ -82,6 +97,7 @@ const Room = () => {
           readOnly={user?.isAnonymous}
           userId={userId}
           roomId={roomId}
+          roundId={roundId}
         />
       </Layout>
     </Suspense>

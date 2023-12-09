@@ -21,13 +21,12 @@ const RoomHeader = ({ roundInfo, roundId, roomId }: RoomHeaderProps) => {
 
   const { mutate: updateRoundInfo } = useMutation({
     mutationFn: (values: object) => updateRound(roomId, roundId, values),
-    onSuccess: () =>
-      client.invalidateQueries({ queryKey: ["round", roomId, "currentRound"] }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["round", roomId] }),
   });
 
   if (user?.isAnonymous)
     return (
-      <div className="flex gap-2 mt-5 w-full flex-col">
+      <div className="flex gap-2 mt-5 w-full flex-col max-w-7xl">
         <h2 className="text-4xl py-3 px-1 focus:outline-gray-300 rounded-md text-gray-800 grow">
           {state === "init" && !title
             ? "Please wait for the host to prepare the next round.."
@@ -50,7 +49,7 @@ const RoomHeader = ({ roundInfo, roundId, roomId }: RoomHeaderProps) => {
   const disabled = ["playing", "results", "finished"].includes(roundInfo.state);
 
   return (
-    <div className="flex flex-col gap-2 mt-5 w-full items-center">
+    <div className="flex flex-col gap-2 mt-5 w-full items-center max-w-7xl m-auto">
       <div className="flex w-full">
         <input
           type="text"
@@ -80,7 +79,7 @@ const RoomHeader = ({ roundInfo, roundId, roomId }: RoomHeaderProps) => {
         onClick={() => updateRoundInfo({ state: "playing" })}
         disabled={disabled}
       >
-        {state === "init" && "Start Poker !"}{" "}
+        {state === "init" && "Start Poker !"}
         {state === "playing" && "Playing..."}
       </button>
     </div>
