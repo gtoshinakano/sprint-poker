@@ -4,6 +4,11 @@
   },
   "hosting": {
     "public": "dist",
+    "site": "sprint-poker",
+    "rewrites": [{
+      "source": "**",
+      "destination": "/index.html"
+    }],
     "ignore": [
       "firebase.json",
       "**/.*",

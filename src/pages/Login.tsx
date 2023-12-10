@@ -8,7 +8,11 @@ type LoginProps = {
 };
 
 const Login = ({ isAnonymous }: LoginProps) => {
-  const [email, setEmail] = useState(import.meta.env.VITE_DUMMY_EMAIL ?? "");
+  const [email, setEmail] = useState(
+    import.meta.env.MODE === "development"
+      ? import.meta.env.VITE_DUMMY_EMAIL ?? ""
+      : ""
+  );
   const [pass, setPass] = useState("");
   const { status, handleLoginWithCredentials, message, handleAnonymousLogin } =
     useContext(AuthContext);

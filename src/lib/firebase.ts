@@ -10,6 +10,7 @@ const firebaseConfig: FirebaseOptions = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MSG_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
 };
 
 const app = initializeApp(firebaseConfig);

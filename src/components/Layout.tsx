@@ -13,7 +13,8 @@ const Layout = ({ children, isProtected, isAnonymous = true }: LayoutProps) => {
   const navigate = useNavigate();
   const { roomId } = useParams();
 
-  const redirectUrl = isAnonymous ? `/signin-room/${roomId ?? ""}` : "/login";
+  const redirectUrl =
+    isAnonymous && roomId ? `/signin-room/${roomId}` : "/login";
 
   useEffect(() => {
     if (isProtected && !userId) {

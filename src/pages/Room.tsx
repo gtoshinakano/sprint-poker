@@ -44,7 +44,11 @@ const Room = () => {
     };
   }, [displayName, navigate, roomId, userId]);
 
-  const { data: currentRound, refetch: refetchRound } = useQuery({
+  const {
+    data: currentRound,
+    refetch: refetchRound,
+    isFetched,
+  } = useQuery({
     queryKey: ["round", roomId],
     queryFn: () => getCurrentRound(roomId!),
     staleTime: Infinity,
@@ -52,6 +56,8 @@ const Room = () => {
 
   const roundInfo = currentRound && Object.values(currentRound)[0];
   const roundId = currentRound && Object.keys(currentRound)[0];
+
+  if (isFetched && !roundInfo) navigate(userId ? "/" : `signin-room/${roomId}`);
 
   if (!roomId || !userId || !roundId) return <Spinner fullScreen size="lg" />;
 
