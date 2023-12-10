@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllRooms } from "../repository/room";
 import { initRoom } from "../service/initRoom";
+import { deleteRoom } from "../service/deleteRoom";
 
 function Dashboard() {
   const [roomName, setRoomName] = useState("");
@@ -17,7 +18,7 @@ function Dashboard() {
     onSuccess: () => client.invalidateQueries({ queryKey: ["rooms"] }),
   });
 
-  const { data: rooms } = useQuery({
+  const { data: rooms, refetch } = useQuery({
     queryKey: ["rooms"],
     queryFn: getAllRooms,
     staleTime: Infinity,
@@ -62,6 +63,11 @@ function Dashboard() {
                   <button
                     className="p-1.5 bg-cyan-400 text-white rounded-lg my-2 mr-1.5"
                     title="copy-url"
+                    onClick={() =>
+                      navigator.clipboard.writeText(
+                        `${import.meta.env.VITE_HOSTING_URL}/room/${key}`
+                      )
+                    }
                   >
                     <RiFileCopyFill />
                   </button>
@@ -69,6 +75,10 @@ function Dashboard() {
                     <button
                       className="p-1.5 bg-red-400 text-white rounded-lg my-2 mr-1.5"
                       title="close-room"
+                      onClick={() => {
+                        deleteRoom(key);
+                        refetch();
+                      }}
                     >
                       <AiFillCloseCircle />
                     </button>

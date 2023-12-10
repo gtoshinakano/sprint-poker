@@ -57,7 +57,8 @@ const Room = () => {
   const roundInfo = currentRound && Object.values(currentRound)[0];
   const roundId = currentRound && Object.keys(currentRound)[0];
 
-  if (isFetched && !roundInfo) navigate(userId ? "/" : `signin-room/${roomId}`);
+  if (isFetched && !roundInfo)
+    navigate(userId ? "/" : `/signin-room/${roomId}`);
 
   if (!roomId || !userId || !roundId) return <Spinner fullScreen size="lg" />;
 
