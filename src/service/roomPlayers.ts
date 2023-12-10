@@ -17,3 +17,9 @@ export const playCard = (
   userId: string,
   answer: Record<string, string | null>
 ) => update(playerStatusRef(roomId, userId), answer);
+
+export const updatePlayerAction = (
+  roomId: string,
+  userId: string,
+  action: string
+) => update(playerStatusRef(roomId, userId), { action });

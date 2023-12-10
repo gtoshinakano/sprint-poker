@@ -8,6 +8,11 @@ export type Round = {
   state: "init" | "playing" | "results" | "finished";
   deck: string[];
   createdBy?: string;
+  answers?: {
+    uid: string;
+    displayName: string;
+    answer: string | null;
+  }[];
 };
 
 export type PlayerStatus = {

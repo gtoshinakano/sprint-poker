@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRoomPlayers } from "../hooks/useRoomPlayers";
 import { ImEye } from "react-icons/im";
 import { Round } from "../repository/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateRound } from "../repository/round";
+import { updatePlayerAction } from "../service/roomPlayers";
 
 type PokerTableProps = {
   roomId: string;
@@ -29,15 +30,20 @@ const PokerTable = ({
   const { mutate: updateRoundInfo } = useMutation({
     mutationFn: (values: object) => updateRound(roomId, roundId, values),
     onSuccess: () => {
+      updatePlayerAction(roomId, userId, "revealed round");
       client.invalidateQueries({ queryKey: ["round", roomId] });
-      setShow(true);
     },
   });
+
+  useEffect(() => {
+    if (state == "results") setShow(true);
+    else setShow(false);
+  }, [state]);
 
   const isReadyToShow =
     state === "playing" &&
     onlineUsers?.filter(({ isWatcher }) => !isWatcher).length ===
-      onlineUsers?.filter((player) => player[`answer-${roundId}`]).length;
+      onlineUsers?.filter((player) => player[answerKey]).length;
 
   return (
     <section className="flex flex-wrap justify-center grow gap-6 px-5 relative">
@@ -51,7 +57,7 @@ const PokerTable = ({
                 answers: onlineUsers?.map((user) => ({
                   uid: user.uid,
                   displayName: user.displayName,
-                  answer: user[`answer-${roundId}`] ?? null,
+                  answer: user[answerKey] ?? null,
                 })),
               })
             }

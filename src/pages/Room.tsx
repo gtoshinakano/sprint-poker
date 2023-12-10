@@ -13,6 +13,7 @@ import PlayFooter from "../components/PlayFooter";
 import PlayerManager from "../components/PlayerManager";
 import PokerTable from "../components/PokerTable";
 import { playCard } from "../service/roomPlayers";
+import ResultsFooter from "../components/ResultsFooter";
 
 const Room = () => {
   const { roomId } = useParams();
@@ -43,10 +44,10 @@ const Room = () => {
     };
   }, [displayName, navigate, roomId, userId]);
 
-  const { data: currentRound } = useQuery({
+  const { data: currentRound, refetch: refetchRound } = useQuery({
     queryKey: ["round", roomId],
     queryFn: () => getCurrentRound(roomId!),
-    staleTime: 5000,
+    staleTime: Infinity,
   });
 
   const roundInfo = currentRound && Object.values(currentRound)[0];
@@ -68,6 +69,7 @@ const Room = () => {
               </h3>
               {roundInfo && roundId && roomId && (
                 <RoomHeader
+                  userId={userId}
                   roundInfo={roundInfo}
                   roundId={roundId}
                   roomId={roomId}
@@ -91,6 +93,16 @@ const Room = () => {
                 userId={userId}
               />
             )}
+            {roundInfo?.state === "results" && (
+              <ResultsFooter
+                deck={roundInfo.deck}
+                roundInfo={roundInfo}
+                readOnly={user?.isAnonymous ?? true}
+                roomId={roomId}
+                roundId={roundId}
+                userId={userId}
+              />
+            )}
           </div>
         </section>
         <PlayerManager
@@ -98,6 +110,7 @@ const Room = () => {
           userId={userId}
           roomId={roomId}
           roundId={roundId}
+          refetchRound={refetchRound}
         />
       </Layout>
     </Suspense>

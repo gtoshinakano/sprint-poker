@@ -5,14 +5,21 @@ import { Round } from "../repository/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateRound } from "../repository/round";
 import DeckEditor from "./DeckEditor";
+import { updatePlayerAction } from "../service/roomPlayers";
 
 type RoomHeaderProps = {
   roundInfo: Round;
   roundId: string;
   roomId: string;
+  userId: string;
 };
 
-const RoomHeader = ({ roundInfo, roundId, roomId }: RoomHeaderProps) => {
+const RoomHeader = ({
+  roundInfo,
+  roundId,
+  roomId,
+  userId,
+}: RoomHeaderProps) => {
   const { user } = useContext(AuthContext);
   const { title, state } = roundInfo;
   const [txtTitle, setTxtTitle] = useState(roundInfo.title);
@@ -21,7 +28,11 @@ const RoomHeader = ({ roundInfo, roundId, roomId }: RoomHeaderProps) => {
 
   const { mutate: updateRoundInfo } = useMutation({
     mutationFn: (values: object) => updateRound(roomId, roundId, values),
-    onSuccess: () => client.invalidateQueries({ queryKey: ["round", roomId] }),
+    onSuccess: (data) => {
+      if (data.state === "playing")
+        updatePlayerAction(roomId, userId, "play ready");
+      client.invalidateQueries({ queryKey: ["round", roomId] });
+    },
   });
 
   if (user?.isAnonymous)
@@ -46,7 +57,7 @@ const RoomHeader = ({ roundInfo, roundId, roomId }: RoomHeaderProps) => {
       </div>
     );
 
-  const disabled = ["playing", "results", "finished"].includes(roundInfo.state);
+  const disabled = ["playing", "results"].includes(roundInfo.state);
 
   return (
     <div className="flex flex-col gap-2 mt-5 w-full items-center max-w-7xl m-auto">
@@ -62,11 +73,12 @@ const RoomHeader = ({ roundInfo, roundId, roomId }: RoomHeaderProps) => {
         />
         <button
           title="edit"
-          className="text-3xl pt-2 text-gray-900 disabled:cursor-not-allowed"
+          className="text-xl px-3 text-white rounded-lg disabled:cursor-not-allowed flex bg-cyan-700 disabled:bg-gray-400"
           onClick={() => updateRoundInfo({ title: txtTitle })}
-          disabled={disabled}
+          disabled={disabled || txtTitle === title}
         >
-          <CiEdit />
+          <span className="my-auto">Set Title</span>
+          <CiEdit className="my-auto" />
         </button>
       </div>
       <DeckEditor
@@ -75,12 +87,13 @@ const RoomHeader = ({ roundInfo, roundId, roomId }: RoomHeaderProps) => {
         disabled={disabled}
       />
       <button
-        className="w-full p-3 text-white bg-cyan-700 mt-3 text-lg font-semibold tracking-wider disabled: cursor-not-allowed disabled:bg-gray-300"
+        className="w-full p-3 text-white bg-cyan-700 mt-3 text-lg font-semibold tracking-wider disabled:cursor-not-allowed disabled:bg-gray-300"
         onClick={() => updateRoundInfo({ state: "playing" })}
-        disabled={disabled}
+        disabled={disabled || !title}
       >
         {state === "init" && "Start Poker !"}
         {state === "playing" && "Playing..."}
+        {state === "results" && "Click Restart button"}
       </button>
     </div>
   );

@@ -11,6 +11,7 @@ type PlayerManagerProps = {
   userId: string | null;
   roomId: string;
   roundId: string;
+  refetchRound: () => void;
 };
 
 const PlayerManager = ({
@@ -18,12 +19,14 @@ const PlayerManager = ({
   userId,
   roomId,
   roundId,
+  refetchRound,
 }: PlayerManagerProps) => {
   const { setOnlineUsers, onlineUsers } = useRoomPlayers();
   useEffect(() => {
     onValue(roomStatusRef(roomId), (snapshot) => {
       if (snapshot.val()) {
         setOnlineUsers(snapshot.val());
+        refetchRound();
       }
     });
   }, []);
